@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Interactive Sanskrit grammar, dictionary, morphology, transliteration, sandhi, and study laboratory.">
+<title>Sanskrit Language Laboratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650;8..60,750&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f5f7;--panel:#ffffffd9;--solid:#fff;--ink:#151517;--muted:#667085;--soft:#8a9099;
+  --line:#d9dce3;--blue:#0a84ff;--indigo:#5e5ce6;--green:#30d158;--orange:#ff9f0a;
+  --red:#ff453a;--purple:#bf5af2;--teal:#40c8e0;--shadow:0 24px 70px rgba(0,0,0,.10);
+  --shadow-soft:0 14px 32px rgba(0,0,0,.07);--radius:30px;--success:#137333;
+}
+[data-theme="dark"]{
+  --bg:#0e1014;--panel:#181b21e8;--solid:#1b1f26;--ink:#f3f5f8;--muted:#a8b0bd;--soft:#8892a0;
+  --line:#303744;--shadow:0 24px 70px rgba(0,0,0,.42);--shadow-soft:0 14px 32px rgba(0,0,0,.25);
+  --success:#68d391;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:'Inter',sans-serif;background:radial-gradient(circle at top left,var(--solid) 0,var(--bg) 38%,var(--bg) 100%);
+  color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:90px;position:relative
+}
+body::before{
+  content:'';position:fixed;inset:0;background:
+  radial-gradient(circle at 20% 30%,var(--blue) 0%,transparent 38%),
+  radial-gradient(circle at 80% 20%,var(--indigo) 0%,transparent 40%),
+  radial-gradient(circle at 50% 80%,var(--teal) 0%,transparent 40%);
+  opacity:.12;z-index:-1;pointer-events:none;filter:blur(90px)
+}
+button,input,select,textarea{font:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--blue),transparent 58%);outline-offset:2px}
+h1,h2,.serif{font-family:'Source Serif 4',serif;font-weight:650;margin:0}
+h1{font-size:clamp(48px,7vw,96px);letter-spacing:-.058em;line-height:.86}
+h2{font-size:clamp(30px,4vw,58px);letter-spacing:-.046em;line-height:.96;margin-bottom:20px}
+h3{font-size:20px;letter-spacing:-.02em;margin:0 0 12px}
+h4{margin:0 0 8px}
+p{margin:0 0 16px}
+a{color:var(--blue)}
+ul,ol{padding-left:20px}
+.app{max-width:1450px;margin:0 auto;padding:0 22px}
+.topbar{position:sticky;top:10px;z-index:150;margin:10px 0 36px}
+.nav-shell{
+  display:flex;align-items:center;gap:10px;padding:10px;background:var(--panel);backdrop-filter:blur(24px);
+  border:1px solid color-mix(in srgb,var(--solid),transparent 26%);box-shadow:var(--shadow-soft);border-radius:var(--radius)
+}
+.brand-mini{font-family:'Source Serif 4',serif;font-weight:650;padding:0 10px;white-space:nowrap}
+.tab-bar{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;flex:1}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn,.ghost-btn,.primary-btn,.chip,.seg-btn{
+  border:none;border-radius:999px;cursor:pointer;transition:.18s ease;white-space:nowrap
+}
+.tab-btn{background:transparent;padding:9px 14px;font-size:13px;font-weight:650;color:var(--muted)}
+.tab-btn:hover{color:var(--ink);background:color-mix(in srgb,var(--ink),transparent 95%)}
+.tab-btn.active{background:var(--ink);color:var(--solid);transform:translateY(-1px)}
+.theme-btn{width:40px;height:40px;border:none;border-radius:50%;cursor:pointer;background:var(--solid);color:var(--ink);border:1px solid var(--line)}
+.contact-actions{display:flex;gap:8px;align-items:center;white-space:nowrap}
+.contact-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:750;border:1px solid var(--line);background:var(--solid);color:var(--ink);transition:.18s ease}
+.contact-link.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.contact-link:hover{transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.hero{display:flex;flex-wrap:wrap;gap:36px;margin-bottom:56px;align-items:center;justify-content:space-between}
+.hero-text{flex:1 1 590px}
+.hero-lede{font-size:20px;color:var(--muted);margin-top:18px;max-width:720px}
+.hero-metrics{flex:0 1 360px;padding:24px;background:var(--panel);backdrop-filter:blur(24px);border:1px solid color-mix(in srgb,var(--solid),transparent 25%);border-radius:24px;box-shadow:var(--shadow-soft)}
+.metric{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.metric:last-child{border-bottom:none}
+.metric-val{font-size:24px}
+.eyebrow{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.mono,.mono-label{font-family:'JetBrains Mono',monospace}
+.mono-label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.section{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:22px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.card{
+  background:color-mix(in srgb,var(--solid),transparent 9%);border:1px solid var(--line);border-radius:24px;padding:24px;
+  box-shadow:var(--shadow-soft);position:relative;transition:.18s ease
+}
+.card.hover:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.card-dark{background:#111318;color:#e8edf5;border:none}
+.card-dark p,.card-dark .muted{color:#bdc4cf}
+[data-theme="dark"] .card-dark{background:#080a0d}
+.muted{color:var(--muted)}
+.note{padding:14px 16px;border-left:4px solid var(--blue);background:color-mix(in srgb,var(--blue),transparent 92%);border-radius:12px}
+.warn{border-left-color:var(--orange);background:color-mix(in srgb,var(--orange),transparent 92%)}
+.success{border-left-color:var(--green);background:color-mix(in srgb,var(--green),transparent 92%)}
+.devanagari{font-family:'Noto Serif Devanagari','Noto Sans Devanagari',serif;line-height:1.45}
+.sanskrit-big{font-size:38px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.input,.select,.textarea{
+  width:100%;border:1px solid var(--line);background:var(--solid);color:var(--ink);border-radius:14px;padding:13px 14px
+}
+.textarea{min-height:120px;resize:vertical}
+.primary-btn{background:var(--ink);color:var(--solid);padding:11px 17px;font-weight:700}
+.primary-btn:hover{transform:translateY(-1px)}
+.ghost-btn{background:var(--solid);color:var(--ink);border:1px solid var(--line);padding:10px 15px;font-weight:650}
+.chip{padding:7px 11px;background:color-mix(in srgb,var(--blue),transparent 90%);color:var(--ink);font-size:12px}
+.chip.active{background:var(--blue);color:#fff}
+.segmented{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:4px;background:var(--solid);overflow-x:auto;max-width:100%}
+.seg-btn{padding:8px 12px;background:transparent;color:var(--muted);font-size:12px;font-weight:700}
+.seg-btn.active{background:var(--ink);color:var(--solid)}
+.result-list{display:grid;gap:14px;margin-top:18px}
+.result-item{padding:18px;border:1px solid var(--line);border-radius:18px;background:var(--solid);cursor:pointer}
+.result-item:hover{border-color:var(--blue)}
+.result-head{display:flex;gap:18px;align-items:flex-start;justify-content:space-between}
+.result-word{font-size:27px;margin:0}
+.badges{display:flex;flex-wrap:wrap;gap:6px}
+.badge{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;border-radius:999px;padding:5px 8px;background:var(--bg);color:var(--muted)}
+.badge.blue{background:color-mix(in srgb,var(--blue),transparent 88%);color:var(--blue)}
+.badge.green{background:color-mix(in srgb,var(--green),transparent 86%);color:var(--success)}
+.definition{font-size:15px}
+.entry-grid{display:grid;grid-template-columns:240px 1fr;gap:24px}
+.entry-sidebar{display:grid;gap:10px;align-content:start}
+.kv{padding:10px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.table-wrapper{overflow-x:auto;margin:18px 0}
+table{width:100%;border-collapse:separate;border-spacing:0 7px;text-align:left;min-width:640px}
+th{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:500;padding:0 14px}
+td{background:var(--solid);padding:13px 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}
+td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
+.code-flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:16px;background:var(--solid);border:1px solid var(--line);border-radius:16px}
+.flow-node{padding:8px 11px;border-radius:10px;background:var(--bg);font-family:'JetBrains Mono',monospace;font-size:13px}
+.flow-arrow{color:var(--muted)}
+.token-row{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.token{padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--solid);cursor:pointer}
+.token:hover,.token.active{border-color:var(--blue);background:color-mix(in srgb,var(--blue),transparent 93%)}
+.palette-btn{position:fixed;bottom:24px;right:24px;width:62px;height:62px;background:var(--ink);color:var(--solid);border-radius:50%;border:none;font-size:19px;font-weight:700;box-shadow:var(--shadow);cursor:pointer;z-index:900}
+.palette-tray{position:fixed;bottom:98px;right:24px;width:370px;max-height:66vh;overflow:auto;background:var(--panel);backdrop-filter:blur(24px);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:none;z-index:899}
+.palette-tray.active{display:block}
+.char-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}
+.char-btn{background:var(--solid);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px 0;cursor:pointer;font-size:17px}
+.toast{position:fixed;bottom:38px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--solid);padding:11px 22px;border-radius:999px;font-size:13px;font-weight:650;opacity:0;transition:.3s;z-index:2000;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.progress{height:9px;border-radius:999px;background:var(--line);overflow:hidden}
+.progress>span{display:block;height:100%;background:var(--blue)}
+footer{margin-top:60px;padding:26px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media(max-width:900px){.grid-2,.grid-3,.entry-grid{grid-template-columns:1fr}.brand-mini{display:none}.contact-actions .contact-link:not(.primary){display:none}.contact-link{padding:9px 11px}.hero{margin-top:10px}.palette-tray{left:16px;right:16px;width:auto}.app{padding:0 14px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="nav-shell">
+      <div class="brand-mini">Sanskrit Lab</div>
+      <nav class="tab-bar" id="tabBar" aria-label="Main sections"></nav>
+      <div class="contact-actions" aria-label="Contact Peter Nelson">
+        <a class="contact-link primary" href="mailto:ponelson@gmail.com?subject=Sanskrit%20Language%20Laboratory">Email</a>
+        <button class="contact-link" onclick="copy('ponelson@gmail.com')" aria-label="Copy email address">Copy email</button>
+      </div>
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">◐</button>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-text">
+      <div class="eyebrow"><span class="dot"></span>Classical Sanskrit by default</div>
+      <h1>Sanskrit<br>Language Lab.</h1>
+      <p class="hero-lede">A bidirectional dictionary, grammar workbench, morphology analyzer, sandhi laboratory, sentence parser, transliterator, and study environment for English speakers.</p>
+    </div>
+    <aside class="hero-metrics">
+      <div class="eyebrow"><span class="dot" style="background:var(--green)"></span>Prototype coverage</div>
+      <div class="metric"><span class="mono-label">Lexical entries</span><span class="metric-val serif" id="metricLex">0</span></div>
+      <div class="metric"><span class="mono-label">Inflected forms</span><span class="metric-val serif" id="metricForms">0</span></div>
+      <div class="metric"><span class="mono-label">Nominal models</span><span class="metric-val serif">4</span></div>
+      <div class="metric"><span class="mono-label">Verb roots</span><span class="metric-val serif">5</span></div>
+    </aside>
+  </header>
+
+  <main id="contentArea" aria-live="polite"></main>
+
+  <footer>
+    This standalone prototype uses a deliberately small, transparent seed lexicon. Generated forms and translations should be checked against authoritative dictionaries, grammars, and corpus attestations before scholarly or publication use.
+  </footer>
+</div>
+
+<button class="palette-btn" onclick="togglePalette()" aria-label="Open Sanskrit character palette">A/अ</button>
+<div class="palette-tray" id="paletteTray">
+  <h3>Character Palette</h3>
+  <p class="muted" style="font-size:13px">Tap any character to copy it.</p>
+  <div class="mono-label">IAST</div><div class="char-grid" id="palIAST"></div>
+  <div class="mono-label" style="margin-top:16px">Devanagari</div><div class="char-grid" id="palDeva"></div>
+</div>
+<div class="toast" id="toast">Copied</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let activeTab='dictionary', dictMode='all', selectedEntry=null, toastTimer;
+
+const TABS=[
+{id:'dictionary',label:'Dictionary'},{id:'workbench',label:'Grammar Workbench'},{id:'orientation',label:'Orientation'},
+{id:'alphabet',label:'Alphabet & Pronunciation'},{id:'sounds',label:'Sound System'},{id:'sandhi',label:'Sandhi'},{id:'nominals',label:'Nominals'},
+{id:'verbs',label:'Verbs'},{id:'syntax',label:'Syntax'},{id:'compounds',label:'Compounds'},
+{id:'vedic',label:'Vedic'},{id:'meter',label:'Meter & Texts'},{id:'typing',label:'Typing'},
+{id:'study',label:'Study'},{id:'sources',label:'Sources'}
+];
+
+const LEXICON=[
+{lemma:'dharma',deva:'धर्म',pos:'noun',gender:'m',stem:'a',period:'Classical / Epic',register:'general; philosophical; legal',meanings:['law, norm, duty, right conduct','essential character or defining property','religious or social obligation'],english:['law','duty','conduct','nature','property'],etym:'From √dhṛ “support, sustain,” with -man formation historically reflected in the noun.',forms:{'dharmaḥ':'nominative singular','dharmam':'accusative singular','dharmasya':'genitive singular','dharmāḥ':'nominative plural','dharmānām':'genitive plural'},examples:[['dharmo rakṣati rakṣitaḥ','धर्मो रक्षति रक्षितः','Dharma protects when protected.']],sources:['MW','Apte','Macdonell']},
+{lemma:'deva',deva:'देव',pos:'noun',gender:'m',stem:'a',period:'Vedic onward',register:'religious; general',meanings:['god, deity','a shining or celestial being'],english:['god','deity','divine being'],forms:{'devaḥ':'nominative singular','devam':'accusative singular','devena':'instrumental singular','devāya':'dative singular','devāt':'ablative singular','devasya':'genitive singular','deve':'locative singular','devāḥ':'nominative plural','devān':'accusative plural','devānām':'genitive plural'},examples:[['devāḥ yajñaṃ pālayanti','देवाः यज्ञं पालयन्ति','The gods protect the sacrifice.']],sources:['MW','Apte']},
+{lemma:'ātman',deva:'आत्मन्',pos:'noun',gender:'m',stem:'consonant',period:'Vedic onward',register:'general; philosophical',meanings:['breath, vital principle','self, person','inner self; metaphysical self in philosophical contexts'],english:['self','soul','person','inner self'],forms:{'ātmā':'nominative singular','ātmānam':'accusative singular','ātmanā':'instrumental singular','ātmanaḥ':'genitive or ablative singular','ātmani':'locative singular'},examples:[['ātmānaṃ viddhi','आत्मानं विद्धि','Know the self.']],sources:['MW','Apte','Macdonell']},
+{lemma:'jñāna',deva:'ज्ञान',pos:'noun',gender:'n',stem:'a',period:'Classical',register:'general; philosophical',meanings:['knowledge','understanding, cognition'],english:['knowledge','understanding','cognition'],forms:{'jñānam':'nominative or accusative singular','jñānena':'instrumental singular','jñānasya':'genitive singular'},examples:[['jñānaṃ balam','ज्ञानं बलम्','Knowledge is strength.']],sources:['MW','Apte']},
+{lemma:'karman',deva:'कर्मन्',pos:'noun',gender:'n',stem:'consonant',period:'Vedic onward',register:'general; ritual; philosophical; grammatical',meanings:['act, deed, work','ritual action','result-producing action','object of a verb in grammar'],english:['action','deed','work','karma','object'],forms:{'karma':'nominative or accusative singular','karmaṇā':'instrumental singular','karmaṇaḥ':'genitive or ablative singular','karmaṇi':'locative singular','karmāṇi':'nominative or accusative plural'},examples:[['karmaṇy evādhikāras te','कर्मण्येवाधिकारस्ते','Your authority is only over action.']],sources:['MW','Apte','Macdonell']},
+{lemma:'agni',deva:'अग्नि',pos:'noun',gender:'m',stem:'i',period:'Vedic onward',register:'ritual; general',meanings:['fire','the god Agni'],english:['fire','Agni'],forms:{'agniḥ':'nominative singular','agnim':'accusative singular','agninā':'instrumental singular','agneḥ':'genitive or ablative singular','agnau':'locative singular','agnayaḥ':'nominative plural'},examples:[['agnim īḷe','अग्निमीळे','I praise Agni.']],sources:['MW','Macdonell']},
+{lemma:'nadī',deva:'नदी',pos:'noun',gender:'f',stem:'ī',period:'Classical',register:'general',meanings:['river, stream'],english:['river','stream'],forms:{'nadī':'nominative singular','nadīm':'accusative singular','nadyā':'instrumental singular','nadyāḥ':'genitive or ablative singular','nadyām':'locative singular','nadyaḥ':'nominative plural'},examples:[['nadī samudraṃ gacchati','नदी समुद्रं गच्छति','The river goes to the ocean.']],sources:['MW','Apte']},
+{lemma:'guru',deva:'गुरु',pos:'noun/adjective',gender:'m/f/n',stem:'u',period:'Vedic onward',register:'general; religious',meanings:['heavy, weighty','important, venerable','teacher, spiritual preceptor'],english:['teacher','guru','heavy','venerable'],forms:{'guruḥ':'nominative singular masculine','gurum':'accusative singular masculine','guruṇā':'instrumental singular','guroḥ':'genitive or ablative singular','guravaḥ':'nominative plural masculine'},examples:[['guruḥ śiṣyaṃ śikṣayati','गुरुः शिष्यं शिक्षयति','The teacher instructs the student.']],sources:['MW','Apte']},
+{lemma:'sukha',deva:'सुख',pos:'noun/adjective',gender:'n / adjectival',stem:'a',period:'Vedic onward',register:'general; philosophical',meanings:['ease, comfort, happiness','pleasant, agreeable'],english:['happiness','ease','comfort','pleasant'],forms:{'sukham':'nominative or accusative singular neuter','sukhena':'instrumental singular','sukhasya':'genitive singular'},examples:[['sarve bhavantu sukhinaḥ','सर्वे भवन्तु सुखिनः','May all be happy.']],sources:['MW','Apte']},
+{lemma:'duḥkha',deva:'दुःख',pos:'noun/adjective',gender:'n / adjectival',stem:'a',period:'Vedic onward',register:'general; philosophical; Buddhist',meanings:['pain, suffering, distress','unpleasant, difficult'],english:['suffering','pain','distress','sorrow'],forms:{'duḥkham':'nominative or accusative singular neuter','duḥkhena':'instrumental singular','duḥkhasya':'genitive singular'},examples:[['duḥkhaṃ jñānena kṣīyate','दुःखं ज्ञानेन क्षीयते','Suffering diminishes through knowledge.']],sources:['MW','Apte']},
+{lemma:'rāja',deva:'राज',pos:'noun',gender:'m',stem:'consonant',period:'Vedic onward',register:'political; general',meanings:['king, ruler'],english:['king','ruler'],forms:{'rājā':'nominative singular','rājānam':'accusative singular','rājñā':'instrumental singular','rājñaḥ':'genitive or ablative singular','rājñi':'locative singular','rājānaḥ':'nominative plural'},examples:[['rājā nagaraṃ pālayati','राजा नगरं पालयति','The king protects the city.']],sources:['MW','Apte']},
+{lemma:'vāc',deva:'वाच्',pos:'noun',gender:'f',stem:'root noun',period:'Vedic onward',register:'general; philosophical',meanings:['speech, voice, utterance','the goddess Speech'],english:['speech','voice','utterance'],forms:{'vāk':'nominative singular','vācam':'accusative singular','vācā':'instrumental singular','vācaḥ':'genitive or ablative singular','vāci':'locative singular'},examples:[['vāk satyam vadati','वाक् सत्यं वदति','Speech speaks truth.']],sources:['MW','Macdonell']},
+{lemma:'satya',deva:'सत्य',pos:'noun/adjective',gender:'n / adjectival',stem:'a',period:'Vedic onward',register:'general; philosophical',meanings:['truth, reality','true, real, faithful'],english:['truth','true','reality'],forms:{'satyam':'nominative or accusative singular neuter','satyaḥ':'nominative singular masculine','satyā':'nominative singular feminine'},examples:[['satyam eva jayate','सत्यमेव जयते','Truth alone triumphs.']],sources:['MW','Apte']},
+{lemma:'śānti',deva:'शान्ति',pos:'noun',gender:'f',stem:'i',period:'Classical',register:'general; religious',meanings:['peace, calm, tranquility','cessation, appeasement'],english:['peace','calm','tranquility'],forms:{'śāntiḥ':'nominative singular','śāntim':'accusative singular','śāntyā':'instrumental singular','śānteḥ':'genitive or ablative singular'},examples:[['śāntiḥ sarvatra bhavatu','शान्तिः सर्वत्र भवतु','May there be peace everywhere.']],sources:['MW','Apte']},
+{lemma:'yoga',deva:'योग',pos:'noun',gender:'m',stem:'a',period:'Vedic onward',register:'general; philosophical; technical',meanings:['joining, yoking, union','application, method, discipline','Yoga as a philosophical and practical system'],english:['union','discipline','yoga','method'],forms:{'yogaḥ':'nominative singular','yogam':'accusative singular','yogena':'instrumental singular','yogasya':'genitive singular'},examples:[['yogaḥ karmasu kauśalam','योगः कर्मसु कौशलम्','Yoga is skill in actions.']],sources:['MW','Apte']},
+{lemma:'√bhū',deva:'√भू',pos:'verb root',class:'1',pada:'P',period:'Vedic onward',register:'general',meanings:['be, become, arise, occur'],english:['be','become','happen','arise'],forms:{'bhavati':'present 3rd singular','bhavataḥ':'present 3rd dual','bhavanti':'present 3rd plural','bhavasi':'present 2nd singular','bhavāmi':'present 1st singular','abhavat':'imperfect 3rd singular','bhaviṣyati':'future 3rd singular','bhūtvā':'absolutive','bhavitum':'infinitive','bhūta':'past passive participle'},examples:[['saḥ rājā bhavati','सः राजा भवति','He becomes king.']],sources:['Dhātupāṭha','MW','Whitney']},
+{lemma:'√gam',deva:'√गम्',pos:'verb root',class:'1',pada:'P',period:'Vedic onward',register:'general',meanings:['go, move, approach, reach'],english:['go','move','reach','approach'],forms:{'gacchati':'present 3rd singular','gacchataḥ':'present 3rd dual','gacchanti':'present 3rd plural','gacchasi':'present 2nd singular','gacchāmi':'present 1st singular','agacchat':'imperfect 3rd singular','gamiṣyati':'future 3rd singular','gatvā':'absolutive','gantum':'infinitive','gata':'past passive participle'},examples:[['rāmaḥ vanaṃ gacchati','रामः वनं गच्छति','Rāma goes to the forest.']],sources:['Dhātupāṭha','MW','Whitney']},
+{lemma:'√kṛ',deva:'√कृ',pos:'verb root',class:'8',pada:'U',period:'Vedic onward',register:'general',meanings:['do, make, perform, cause'],english:['do','make','perform','cause'],forms:{'karoti':'present 3rd singular active','kurutaḥ':'present 3rd dual active','kurvanti':'present 3rd plural active','karoṣi':'present 2nd singular active','karomi':'present 1st singular active','akarot':'imperfect 3rd singular','kariṣyati':'future 3rd singular','kṛtvā':'absolutive','kartum':'infinitive','kṛta':'past passive participle'},examples:[['saḥ karma karoti','सः कर्म करोति','He performs an action.']],sources:['Dhātupāṭha','MW','Whitney']},
+{lemma:'√dṛś',deva:'√दृश्',pos:'verb root',class:'1',pada:'P',period:'Vedic onward',register:'general',meanings:['see, behold, perceive'],english:['see','perceive','behold'],forms:{'paśyati':'present 3rd singular','paśyataḥ':'present 3rd dual','paśyanti':'present 3rd plural','apaśyat':'imperfect 3rd singular','drakṣyati':'future 3rd singular','dṛṣṭvā':'absolutive','draṣṭum':'infinitive','dṛṣṭa':'past passive participle'},examples:[['saḥ nagaraṃ paśyati','सः नगरं पश्यति','He sees the city.']],sources:['Dhātupāṭha','MW','Whitney']},
+{lemma:'√vad',deva:'√वद्',pos:'verb root',class:'1',pada:'P',period:'Vedic onward',register:'general',meanings:['speak, say, tell'],english:['speak','say','tell'],forms:{'vadati':'present 3rd singular','vadataḥ':'present 3rd dual','vadanti':'present 3rd plural','avīvadat':'imperfect or reduplicated historical form in some contexts','vadiṣyati':'future 3rd singular','uktvā':'common suppletive-style lexical alternative for “having said” from √vac','vaktum':'infinitive from √vac in common usage'},examples:[['sā satyaṃ vadati','सा सत्यं वदति','She speaks the truth.']],sources:['Dhātupāṭha','MW','Whitney']}
+];
+
+const FORM_INDEX={};
+LEXICON.forEach((e,idx)=>Object.entries(e.forms||{}).forEach(([f,a])=>{
+  (FORM_INDEX[f]??=[]).push({entry:idx,analysis:a});
+}));
+const DEV_MAP={
+'अ':'a','आ':'ā','इ':'i','ई':'ī','उ':'u','ऊ':'ū','ऋ':'ṛ','ॠ':'ṝ','ऌ':'ḷ','ए':'e','ऐ':'ai','ओ':'o','औ':'au',
+'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'ṅ','च':'c','छ':'ch','ज':'j','झ':'jh','ञ':'ñ',
+'ट':'ṭ','ठ':'ṭh','ड':'ḍ','ढ':'ḍh','ण':'ṇ','त':'t','थ':'th','द':'d','ध':'dh','न':'n',
+'प':'p','फ':'ph','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','व':'v','श':'ś','ष':'ṣ','स':'s','ह':'h',
+'ा':'ā','ि':'i','ी':'ī','ु':'u','ू':'ū','ृ':'ṛ','ॄ':'ṝ','े':'e','ै':'ai','ो':'o','ौ':'au','ं':'ṃ','ः':'ḥ','ँ':'m̐','्':''
+};
+const IAST_PALETTE=['ā','ī','ū','ṛ','ṝ','ḷ','ḹ','ṃ','ḥ','ṅ','ñ','ṭ','ṭh','ḍ','ḍh','ṇ','ś','ṣ','’','√'];
+const DEVA_PALETTE=['अ','आ','इ','ई','उ','ऊ','ऋ','ॠ','ऌ','ए','ऐ','ओ','औ','क','ख','ग','घ','ङ','च','छ','ज','झ','ञ','ट','ठ','ड','ढ','ण','त','थ','द','ध','न','प','फ','ब','भ','म','य','र','ल','व','श','ष','स','ह','ं','ः','्','ऽ'];
+
+const NOUN_MODELS={
+'deva':{label:'deva — masculine a-stem',lemma:'deva',gender:'masculine',rows:[
+['Nominative','devaḥ','devau','devāḥ'],['Accusative','devam','devau','devān'],['Instrumental','devena','devābhyām','devaiḥ'],['Dative','devāya','devābhyām','devebhyaḥ'],['Ablative','devāt','devābhyām','devebhyaḥ'],['Genitive','devasya','devayoḥ','devānām'],['Locative','deve','devayoḥ','deveṣu'],['Vocative','deva','devau','devāḥ']]},
+'phala':{label:'phala — neuter a-stem',lemma:'phala',gender:'neuter',rows:[
+['Nominative','phalam','phale','phalāni'],['Accusative','phalam','phale','phalāni'],['Instrumental','phalena','phalābhyām','phalaiḥ'],['Dative','phalāya','phalābhyām','phalebhyaḥ'],['Ablative','phalāt','phalābhyām','phalebhyaḥ'],['Genitive','phalasya','phalayoḥ','phalānām'],['Locative','phale','phalayoḥ','phaleṣu'],['Vocative','phala','phale','phalāni']]},
+'latā':{label:'latā — feminine ā-stem',lemma:'latā',gender:'feminine',rows:[
+['Nominative','latā','late','latāḥ'],['Accusative','latām','late','latāḥ'],['Instrumental','latayā','latābhyām','latābhiḥ'],['Dative','latāyai','latābhyām','latābhyaḥ'],['Ablative','latāyāḥ','latābhyām','latābhyaḥ'],['Genitive','latāyāḥ','latayoḥ','latānām'],['Locative','latāyām','latayoḥ','latāsu'],['Vocative','late','late','latāḥ']]},
+'agni':{label:'agni — masculine i-stem',lemma:'agni',gender:'masculine',rows:[
+['Nominative','agniḥ','agnī','agnayaḥ'],['Accusative','agnim','agnī','agnīn'],['Instrumental','agninā','agnibhyām','agnibhiḥ'],['Dative','agnaye','agnibhyām','agnibhyaḥ'],['Ablative','agneḥ','agnibhyām','agnibhyaḥ'],['Genitive','agneḥ','agnyoḥ','agnīnām'],['Locative','agnau','agnyoḥ','agniṣu'],['Vocative','agne','agnī','agnayaḥ']]}
+};
+
+const VERB_MODELS={
+'√bhū':{present:[['3rd','bhavati','bhavataḥ','bhavanti'],['2nd','bhavasi','bhavathaḥ','bhavatha'],['1st','bhavāmi','bhavāvaḥ','bhavāmaḥ']],flow:['√bhū','guṇa / stem formation','bhava-','-ti','bhavati']},
+'√gam':{present:[['3rd','gacchati','gacchataḥ','gacchanti'],['2nd','gacchasi','gacchathaḥ','gacchatha'],['1st','gacchāmi','gacchāvaḥ','gacchāmaḥ']],flow:['√gam','class-1 suppletive present stem','gaccha-','-ti','gacchati']},
+'√kṛ':{present:[['3rd','karoti','kurutaḥ','kurvanti'],['2nd','karoṣi','kuruthaḥ','kurutha'],['1st','karomi','kurvaḥ','kurmaḥ']],flow:['√kṛ','class-8 stem alternation','karo-/kuru-/kurv-','-ti','karoti']},
+'√dṛś':{present:[['3rd','paśyati','paśyataḥ','paśyanti'],['2nd','paśyasi','paśyathaḥ','paśyatha'],['1st','paśyāmi','paśyāvaḥ','paśyāmaḥ']],flow:['√dṛś','suppletive present base','paśya-','-ti','paśyati']},
+'√vad':{present:[['3rd','vadati','vadataḥ','vadanti'],['2nd','vadasi','vadathaḥ','vadatha'],['1st','vadāmi','vadāvaḥ','vadāmaḥ']],flow:['√vad','class-1 stem','vada-','-ti','vadati']}
+};
+
+const SENTENCES=[
+{deva:'रामः वनं गच्छति।',iast:'rāmaḥ vanaṃ gacchati.',translation:'Rāma goes to the forest.',tokens:[
+['rāmaḥ','rāma','noun','nominative singular masculine','subject','Rāma'],
+['vanam','vana','noun','accusative singular neuter','goal / destination','forest'],
+['gacchati','√gam','verb','present indicative, 3rd singular, active','predicate','goes']]},
+{deva:'गुरुः शिष्यं शिक्षयति।',iast:'guruḥ śiṣyaṃ śikṣayati.',translation:'The teacher instructs the student.',tokens:[
+['guruḥ','guru','noun','nominative singular masculine','subject','teacher'],
+['śiṣyam','śiṣya','noun','accusative singular masculine','direct object','student'],
+['śikṣayati','√śikṣ','verb','present indicative, 3rd singular, causative','predicate','instructs']]},
+{deva:'सत्यं वद।',iast:'satyaṃ vada.',translation:'Speak the truth.',tokens:[
+['satyam','satya','noun','accusative singular neuter','direct object','truth'],
+['vada','√vad','verb','imperative, 2nd singular, active','predicate','speak']]}
+];
+
+function copy(text){navigator.clipboard.writeText(text);const t=$('#toast');t.textContent='Copied: '+text;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1400)}
+function togglePalette(){$('#paletteTray').classList.toggle('active')}
+function boot(){
+ const tb=$('#tabBar');
+ TABS.forEach(t=>{const b=document.createElement('button');b.className='tab-btn'+(t.id===activeTab?' active':'');b.textContent=t.label;b.onclick=()=>switchTab(t.id);tb.appendChild(b)});
+ $('#palIAST').innerHTML=IAST_PALETTE.map(c=>`<button class="char-btn" onclick="copy('${c}')">${c}</button>`).join('');
+ $('#palDeva').innerHTML=DEVA_PALETTE.map(c=>`<button class="char-btn devanagari" onclick="copy('${c}')">${c}</button>`).join('');
+ $('#metricLex').textContent=LEXICON.length;$('#metricForms').textContent=Object.keys(FORM_INDEX).length;
+ $('#themeBtn').onclick=()=>{const root=document.documentElement;const dark=root.getAttribute('data-theme')==='dark';root.setAttribute('data-theme',dark?'light':'dark');localStorage.setItem('sanskrit-theme',dark?'light':'dark')};
+ const saved=localStorage.getItem('sanskrit-theme');if(saved)document.documentElement.setAttribute('data-theme',saved);
+ renderTab(activeTab);
+}
+function switchTab(id){activeTab=id;$$('.tab-btn').forEach((b,i)=>b.classList.toggle('active',TABS[i].id===id));renderTab(id);window.scrollTo({top:0,behavior:'smooth'})}
+function renderTab(id){
+ const c=$('#contentArea');let html='';
+ if(id==='dictionary')html=renderDictionary();
+ else if(id==='workbench')html=renderWorkbench();
+ else if(id==='orientation')html=renderOrientation();
+ else if(id==='alphabet')html=renderAlphabet();
+ else if(id==='sounds')html=renderSounds();
+ else if(id==='sandhi')html=renderSandhi();
+ else if(id==='nominals')html=renderNominals();
+ else if(id==='verbs')html=renderVerbs();
+ else if(id==='syntax')html=renderSyntax();
+ else if(id==='compounds')html=renderCompounds();
+ else if(id==='vedic')html=renderVedic();
+ else if(id==='meter')html=renderMeter();
+ else if(id==='typing')html=renderTyping();
+ else if(id==='study')html=renderStudy();
+ else if(id==='sources')html=renderSources();
+ c.innerHTML=`<section class="section">${html}</section>`;
+ bindAfterRender(id);
+}
+function bindAfterRender(id){
+ if(id==='dictionary'){runSearch();$('#dictQuery').addEventListener('input',runSearch)}
+ if(id==='workbench'){analyzeForm();updateTransliteration()}
+ if(id==='nominals')renderNounTable();
+ if(id==='verbs')renderVerbTable();
+ if(id==='syntax')renderSentence(0);
+ if(id==='study')newQuiz();
+}
+
+function renderDictionary(){return `
+<h2>Bidirectional Dictionary</h2>
+<p class="muted">Search English, IAST, Devanagari, roots, meanings, or known inflected forms. Results preserve ambiguity and identify the lexical source layer.</p>
+<div class="card">
+ <div class="grid-2">
+  <div><label class="mono-label" for="dictQuery">Search</label><input class="input" id="dictQuery" value="" placeholder="Try: knowledge, dharma, देव, gacchati, √gam"></div>
+  <div><label class="mono-label">Direction</label><div class="segmented">
+   <button class="seg-btn active" onclick="setDictMode('all',this)">All</button>
+   <button class="seg-btn" onclick="setDictMode('se',this)">Sanskrit → English</button>
+   <button class="seg-btn" onclick="setDictMode('es',this)">English → Sanskrit</button>
+   <button class="seg-btn" onclick="setDictMode('form',this)">Analyze form</button>
+  </div></div>
+ </div>
+ <div class="controls" style="margin-top:14px">
+  ${['self','knowledge','go','truth','peace','action'].map(x=>`<button class="chip" onclick="setSearch('${x}')">${x}</button>`).join('')}
+ </div>
+</div>
+<div id="dictResults" class="result-list"></div>
+<div id="entryDetail" style="margin-top:22px"></div>`}
+
+function normalize(s){return (s||'').toLowerCase().trim().replace(/[।.?,;:!]/g,'')}
+function setSearch(q){$('#dictQuery').value=q;runSearch()}
+function setDictMode(m,el){dictMode=m;el.parentElement.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');runSearch()}
+function runSearch(){
+ const q=normalize($('#dictQuery')?.value||'');
+ let hits=[];
+ if(dictMode==='form'||(FORM_INDEX[q]&&q)){
+   const analyses=FORM_INDEX[q]||[];
+   hits=analyses.map(a=>({entry:LEXICON[a.entry],analysis:a.analysis,form:q}));
+ } else {
+   LEXICON.forEach(e=>{
+    const sHay=[e.lemma,e.deva,e.pos,e.period,e.register,...e.meanings,...e.english,Object.keys(e.forms||{})].join(' ').toLowerCase();
+    let ok=!q||sHay.includes(q);
+    if(dictMode==='se'&&q)ok=[e.lemma,e.deva,...Object.keys(e.forms||{})].join(' ').toLowerCase().includes(q);
+    if(dictMode==='es'&&q)ok=[...e.meanings,...e.english].join(' ').toLowerCase().includes(q);
+    if(ok)hits.push({entry:e});
+   });
+ }
+ const out=$('#dictResults');if(!out)return;
+ if(!hits.length){out.innerHTML=`<div class="card note warn"><strong>No seeded entry found.</strong> This prototype does not yet contain an exhaustive lexicon. Try a root, common Sanskrit lemma, or an English concept.</div>`;$('#entryDetail').innerHTML='';return}
+ out.innerHTML=hits.slice(0,40).map((h,i)=>`
+ <article class="result-item" onclick="openEntryByLemma('${h.entry.lemma.replace("'","\\'")}')">
+  <div class="result-head">
+   <div><h3 class="result-word">${esc(h.entry.lemma)} <span class="devanagari">${esc(h.entry.deva)}</span></h3>
+   <div class="definition">${esc(h.entry.meanings[0])}${h.analysis?`<br><strong>${esc(h.form)}</strong>: ${esc(h.analysis)}`:''}</div></div>
+   <div class="badges"><span class="badge blue">${esc(h.entry.pos)}</span>${h.entry.gender?`<span class="badge">${esc(h.entry.gender)}</span>`:''}<span class="badge green">${esc(h.entry.period)}</span></div>
+  </div>
+ </article>`).join('');
+ if(hits.length===1)openEntry(hits[0].entry);
+}
+function openEntryByLemma(l){const e=LEXICON.find(x=>x.lemma===l);openEntry(e)}
+function openEntry(e){
+ selectedEntry=e;
+ $('#entryDetail').innerHTML=`<article class="card">
+  <div class="entry-grid">
+   <aside class="entry-sidebar">
+    <div><div class="mono-label">Headword</div><div class="serif" style="font-size:38px">${esc(e.lemma)}</div><div class="devanagari sanskrit-big">${esc(e.deva)}</div></div>
+    <div class="kv"><div class="mono-label">Part of speech</div>${esc(e.pos)}</div>
+    ${e.gender?`<div class="kv"><div class="mono-label">Gender</div>${esc(e.gender)}</div>`:''}
+    ${e.stem?`<div class="kv"><div class="mono-label">Stem class</div>${esc(e.stem)}</div>`:''}
+    ${e.class?`<div class="kv"><div class="mono-label">Present class</div>${esc(e.class)}</div>`:''}
+    ${e.pada?`<div class="kv"><div class="mono-label">Pada</div>${esc(e.pada)}</div>`:''}
+    <div class="kv"><div class="mono-label">Period</div>${esc(e.period)}</div>
+    <div class="kv"><div class="mono-label">Register</div>${esc(e.register)}</div>
+   </aside>
+   <div>
+    <div class="eyebrow"><span class="dot"></span>Meaning hierarchy</div>
+    <ol>${e.meanings.map(m=>`<li>${esc(m)}</li>`).join('')}</ol>
+    ${e.etym?`<div class="note"><strong>Etymology:</strong> ${esc(e.etym)}</div>`:''}
+    <h3 style="margin-top:24px">Attested or pedagogical examples</h3>
+    ${e.examples.map(x=>`<div class="card" style="box-shadow:none;margin:10px 0"><div class="mono">${esc(x[0])}</div><div class="devanagari" style="font-size:24px">${esc(x[1])}</div><div class="muted">${esc(x[2])}</div></div>`).join('')}
+    <h3 style="margin-top:24px">Known forms in this prototype</h3>
+    <div class="table-wrapper"><table><tr><th>Form</th><th>Analysis</th></tr>${Object.entries(e.forms||{}).map(([f,a])=>`<tr><td class="mono">${esc(f)}</td><td>${esc(a)}</td></tr>`).join('')}</table></div>
+    <div class="badges">${e.sources.map(s=>`<span class="badge">${esc(s)}</span>`).join('')}</div>
+   </div>
+  </div>
+ </article>`;
+}
+
+function renderWorkbench(){return `
+<h2>Grammar Workbench</h2>
+<div class="grid-2">
+ <div class="card">
+  <div class="eyebrow"><span class="dot"></span>Morphology</div><h3>Analyze an inflected form</h3>
+  <input class="input" id="formInput" value="devānām" oninput="analyzeForm()">
+  <div id="formResult" style="margin-top:14px"></div>
+ </div>
+ <div class="card">
+  <div class="eyebrow"><span class="dot" style="background:var(--purple)"></span>Transliteration</div><h3>Devanagari → rough IAST</h3>
+  <textarea class="textarea devanagari" id="translitInput" oninput="updateTransliteration()">रामः वनं गच्छति।</textarea>
+  <div class="note" id="translitOutput"></div>
+  <p class="muted" style="font-size:12px;margin-top:10px">This lightweight converter is heuristic and does not fully resolve inherent-vowel deletion, conjuncts, or all orthographic conventions.</p>
+ </div>
+</div>
+<div class="grid-3" style="margin-top:22px">
+ <button class="card hover" onclick="switchTab('nominals')" style="text-align:left;color:inherit"><div class="eyebrow">Declension</div><h3>Nominal engine</h3><p class="muted">Explore four complete paradigms and case functions.</p></button>
+ <button class="card hover" onclick="switchTab('verbs')" style="text-align:left;color:inherit"><div class="eyebrow">Conjugation</div><h3>Verb engine</h3><p class="muted">Compare five roots and see derivational steps.</p></button>
+ <button class="card hover" onclick="switchTab('sandhi')" style="text-align:left;color:inherit"><div class="eyebrow">Phonology</div><h3>Sandhi laboratory</h3><p class="muted">Join and split selected common combinations.</p></button>
+</div>`}
+function analyzeForm(){
+ const q=normalize($('#formInput')?.value||'');const r=$('#formResult');if(!r)return;
+ const hits=FORM_INDEX[q]||[];
+ if(!hits.length){r.innerHTML=`<div class="note warn">No exact form in the seed index. A production analyzer would segment endings, reverse sandhi, and return multiple ranked parses.</div>`;return}
+ r.innerHTML=hits.map(h=>{const e=LEXICON[h.entry];return `<div class="result-item"><strong class="mono">${esc(q)}</strong><div>${esc(h.analysis)}</div><div class="muted">Lemma: ${esc(e.lemma)} · ${esc(e.pos)}</div></div>`}).join('');
+}
+function roughDevaToIAST(text){
+ let out='';
+ for(let i=0;i<text.length;i++){const ch=text[i];out+=DEV_MAP[ch]??ch}
+ return out.replace(/a([āiīuūṛṝḷeoa])/g,'$1').replace(/a्/g,'').replace(/aa/g,'a');
+}
+function updateTransliteration(){const v=$('#translitInput')?.value||'';const out=$('#translitOutput');if(out)out.innerHTML=`<div class="mono">${esc(roughDevaToIAST(v))}</div>`}
+
+function renderOrientation(){return `
+<h2>Orientation</h2>
+<div class="grid-2">
+ <div class="card"><div class="eyebrow"><span class="dot"></span>Scope</div><h3>What Sanskrit is</h3><p>Sanskrit is an Indo-Aryan language with a long textual history. This application defaults to Classical Sanskrit but distinguishes Vedic, Epic, Buddhist Hybrid, and Modern Sanskrit where relevant.</p><p>Devanagari is the most common modern print script for Sanskrit, not its unique or original script. Sanskrit has also been written in many regional scripts.</p></div>
+ <div class="card card-dark"><div class="eyebrow"><span class="dot" style="background:var(--green)"></span>Core principle</div><h3 class="serif" style="font-size:30px">Form before translation.</h3><p>A reliable Sanskrit analysis identifies the lemma, stem, grammatical ending, sandhi, syntax, period, and context before choosing an English rendering.</p></div>
+</div>
+<div class="card note warn" style="margin-top:22px"><strong>Editorial caution.</strong> Sanskrit is morphologically rich and lexically polysemous. English-to-Sanskrit output should be treated as a context-sensitive selection problem, not a one-word substitution exercise.</div>`}
+
+
+function renderAlphabet(){
+ const vowels=[
+  ['a','अ','short','Like the vowel in “but,” but kept clean and brief.','One beat'],
+  ['ā','आ','long','Like a in “father.”','Two beats'],
+  ['i','इ','short','Like i in “bit.”','One beat'],
+  ['ī','ई','long','Like ee in “meet.”','Two beats'],
+  ['u','उ','short','Like u in “put.”','One beat'],
+  ['ū','ऊ','long','Like oo in “boot.”','Two beats'],
+  ['ṛ','ऋ','syllabic rhotic','A syllabic r-sound; avoid turning it into a full “ri.”','One beat'],
+  ['ṝ','ॠ','long syllabic rhotic','The long counterpart of ṛ; uncommon.','Two beats'],
+  ['ḷ','ऌ','syllabic lateral','A syllabic l-sound; very rare.','One beat'],
+  ['e','ए','long monophthong','Like a pure e/ay without an English glide.','Two beats'],
+  ['ai','ऐ','diphthong','Like ai in “aisle.”','Two beats'],
+  ['o','ओ','long monophthong','Like a pure o without an English glide.','Two beats'],
+  ['au','औ','diphthong','Like ow in “how.”','Two beats']
+ ];
+ const rows=[
+  ['Velar','k','ख् kh','g','घ् gh','ङ् ṅ','Back of tongue at soft palate'],
+  ['Palatal','c','छ् ch','j','झ् jh','ञ् ñ','Tongue body near hard palate'],
+  ['Retroflex','ṭ','ठ् ṭh','ḍ','ढ् ḍh','ण् ṇ','Tongue tip curled back'],
+  ['Dental','t','थ् th','d','ध् dh','न् n','Tongue touches upper teeth'],
+  ['Labial','p','फ् ph','b','भ् bh','म् m','Made at the lips']
+ ];
+ const misc=[
+  ['y','य्','Like y in “yes.”'],
+  ['r','र्','A flap or light trill, not the English r.'],
+  ['l','ल्','A clear dental/alveolar l.'],
+  ['v','व्','Between English v and w; realization varies.'],
+  ['ś','श्','Palatal sh, with the tongue broadly near the palate.'],
+  ['ṣ','ष्','Retroflex sh, with the tongue curled back.'],
+  ['s','स्','Dental s, articulated near the teeth.'],
+  ['h','ह्','A voiced or breathy h in traditional pronunciation.'],
+  ['ṃ','ं','Anusvāra; its nasal realization changes with context.'],
+  ['ḥ','ः','Visarga; a post-vocalic breath whose sound changes by context.']
+ ];
+ return `
+ <h2>Alphabet & Pronunciation</h2>
+ <p class="muted">The Sanskrit alphabet is arranged by phonetic logic rather than arbitrary letter order. Learn each sound by vowel length, place of articulation, voicing, aspiration, and nasality.</p>
+
+ <div class="card card-dark" style="margin-bottom:22px">
+  <div class="eyebrow"><span class="dot" style="background:var(--green)"></span>Pronunciation rule</div>
+  <h3 class="serif" style="font-size:30px">Preserve distinctions. Do not anglicize them.</h3>
+  <p>Long vowels last roughly twice as long as short vowels. Aspirated stops release a separate puff of air. Dental and retroflex consonants are different phonemes and can distinguish words.</p>
+ </div>
+
+ <h3>Vowels</h3>
+ <div class="table-wrapper"><table>
+  <tr><th>IAST</th><th>Devanagari</th><th>Type</th><th>Pronunciation</th><th>Length</th><th>Action</th></tr>
+  ${vowels.map(v=>`<tr>
+   <td class="mono" style="font-size:20px">${v[0]}</td>
+   <td class="devanagari" style="font-size:27px">${v[1]}</td>
+   <td>${v[2]}</td><td>${v[3]}</td><td>${v[4]}</td>
+   <td><button class="ghost-btn" onclick="speakSanskrit('${v[1]}')" aria-label="Hear ${v[0]}">Hear</button></td>
+  </tr>`).join('')}
+ </table></div>
+
+ <h3 style="margin-top:30px">The five stop series</h3>
+ <p class="muted">Each row progresses through voiceless unaspirated, voiceless aspirated, voiced unaspirated, voiced aspirated, and nasal.</p>
+ <div class="table-wrapper"><table>
+  <tr><th>Place</th><th>Unvoiced</th><th>Aspirated</th><th>Voiced</th><th>Voiced aspirated</th><th>Nasal</th><th>Articulation</th></tr>
+  ${rows.map(r=>`<tr><td><strong>${r[0]}</strong></td><td class="mono">${r[1]}</td><td class="mono">${r[2]}</td><td class="mono">${r[3]}</td><td class="mono">${r[4]}</td><td class="mono">${r[5]}</td><td>${r[6]}</td></tr>`).join('')}
+ </table></div>
+
+ <div class="grid-2" style="margin-top:22px">
+  <div class="card">
+   <div class="eyebrow">Aspiration test</div>
+   <h3>k versus kh</h3>
+   <p>Hold your palm in front of your mouth. <span class="mono">k</span> should release little air; <span class="mono">kh</span> should produce a clear puff. The same contrast applies to every stop series.</p>
+   <div class="controls"><button class="ghost-btn" onclick="speakSanskrit('क')">Hear क ka</button><button class="ghost-btn" onclick="speakSanskrit('ख')">Hear ख kha</button></div>
+  </div>
+  <div class="card">
+   <div class="eyebrow">Tongue placement</div>
+   <h3>ṭ versus t</h3>
+   <p>For <span class="mono">ṭ</span>, curl the tongue tip back toward the roof of the mouth. For <span class="mono">t</span>, place it against the back of the upper teeth.</p>
+   <div class="controls"><button class="ghost-btn" onclick="speakSanskrit('ट')">Hear ट ṭa</button><button class="ghost-btn" onclick="speakSanskrit('त')">Hear त ta</button></div>
+  </div>
+ </div>
+
+ <h3 style="margin-top:30px">Semivowels, sibilants, and modifiers</h3>
+ <div class="grid">${misc.map(x=>`<div class="card hover">
+  <div style="display:flex;justify-content:space-between;align-items:start;gap:12px">
+   <div><div class="mono" style="font-size:26px">${x[0]} <span class="devanagari">${x[1]}</span></div><p class="muted">${x[2]}</p></div>
+   <button class="ghost-btn" onclick="speakSanskrit('${x[1].replace('्','')}')">Hear</button>
+  </div>
+ </div>`).join('')}</div>
+
+ <div class="card note warn" style="margin-top:22px">
+  <strong>Audio note.</strong> The Hear buttons use your browser or operating system’s available Hindi/Sanskrit-compatible speech voice. They are convenient models, not a substitute for a trained Sanskrit teacher or a documented recitation tradition.
+ </div>`;
+}
+function speakSanskrit(text){
+ if(!('speechSynthesis' in window)){alert('Speech playback is not supported in this browser.');return}
+ window.speechSynthesis.cancel();
+ const utterance=new SpeechSynthesisUtterance(text);
+ utterance.lang='hi-IN';
+ utterance.rate=.72;
+ const voices=window.speechSynthesis.getVoices();
+ const preferred=voices.find(v=>/sa-IN|Sanskrit/i.test(v.lang+' '+v.name))||voices.find(v=>/hi-IN|Hindi/i.test(v.lang+' '+v.name));
+ if(preferred)utterance.voice=preferred;
+ window.speechSynthesis.speak(utterance);
+}
+
+function renderSounds(){
+ const groups=[
+ ['Vowels',[['a','अ','short central/open vowel'],['ā','आ','long ā'],['i','इ','short i'],['ī','ई','long ī'],['u','उ','short u'],['ū','ऊ','long ū'],['ṛ','ऋ','syllabic rhotic'],['e','ए','long monophthong historically diphthongal'],['ai','ऐ','diphthong'],['o','ओ','long monophthong historically diphthongal'],['au','औ','diphthong']]],
+ ['Stops',[['k kh g gh ṅ','क ख ग घ ङ','velar series'],['c ch j jh ñ','च छ ज झ ञ','palatal series'],['ṭ ṭh ḍ ḍh ṇ','ट ठ ड ढ ण','retroflex series'],['t th d dh n','त थ द ध न','dental series'],['p ph b bh m','प फ ब भ म','labial series']]],
+ ['Continuants',[['y r l v','य र ल व','semivowels / approximants'],['ś ṣ s','श ष स','palatal, retroflex, and dental sibilants'],['h','ह','voiced glottal or laryngeal fricative in traditional description']]],
+ ['Modifiers',[['ṃ','ं','anusvāra: context-sensitive nasal realization'],['ḥ','ः','visarga: context-sensitive post-vocalic breath'],['ऽ','ऽ','avagraha: orthographic mark often showing elided initial a']]]
+ ];
+ return `<h2>Sound System</h2><p class="muted">The traditional ordering is articulatory: place of articulation, voicing, aspiration, and nasality.</p><div class="grid">${groups.map(g=>`<div class="card"><div class="eyebrow">${g[0]}</div>${g[1].map(x=>`<div class="kv"><div style="font-size:22px"><span class="mono">${x[0]}</span> <span class="devanagari">${x[1]}</span></div><div class="muted">${x[2]}</div></div>`).join('')}</div>`).join('')}</div>
+ <div class="card note" style="margin-top:22px"><strong>Quantity is phonemic.</strong> Short and long vowels differ in duration. Classical Sanskrit should not be described as merely “spelled exactly as pronounced,” because sandhi, historical spelling, manuscript practice, recitation tradition, and editorial normalization all matter.</div>`;
+}
+
+function renderSandhi(){return `
+<h2>Sandhi Laboratory</h2>
+<div class="grid-2">
+ <div class="card">
+  <div class="eyebrow"><span class="dot" style="background:var(--orange)"></span>Join</div><h3>Combine two forms</h3>
+  <div class="grid-2"><input class="input" id="sandhiA" value="rāmaḥ"><input class="input" id="sandhiB" value="asti"></div>
+  <button class="primary-btn" style="margin-top:12px" onclick="joinSandhi()">Apply selected rules</button>
+  <div id="sandhiJoinOut" style="margin-top:14px"></div>
+ </div>
+ <div class="card">
+  <div class="eyebrow"><span class="dot" style="background:var(--orange)"></span>Split</div><h3>Reverse a known combination</h3>
+  <input class="input" id="sandhiCombined" value="rāmo ’sti">
+  <button class="primary-btn" style="margin-top:12px" onclick="splitSandhi()">Find candidates</button>
+  <div id="sandhiSplitOut" style="margin-top:14px"></div>
+ </div>
+</div>
+<div class="card" style="margin-top:22px"><h3>Rule families</h3><div class="grid-3">
+ <div><div class="mono-label">Vowel</div><p>Coalescence, guṇa, vṛddhi, semivowel substitution, and special exceptions.</p></div>
+ <div><div class="mono-label">Visarga</div><p>Changes conditioned by following vowels, voiced sounds, sibilants, and pause.</p></div>
+ <div><div class="mono-label">Consonant</div><p>Voicing assimilation, place assimilation, gemination, nasal substitution, and retroflexion.</p></div>
+</div></div>`}
+function joinSandhi(){
+ const a=normalize($('#sandhiA').value),b=normalize($('#sandhiB').value);let out=`${a} ${b}`,rule='No seeded rule matched.';
+ const key=a+'+'+b;
+ const rules={
+ 'rāmaḥ+asti':['rāmo ’sti','final -aḥ before initial a becomes -o; the following a is elided and marked by avagraha'],
+ 'namaḥ+te':['namaste','visarga before t yields s in this lexicalized combination'],
+ 'sūrya+udayaḥ':['sūryodayaḥ','a + u produces o'],
+ 'tat+ca':['tac ca','final t assimilates to following palatal c, producing gemination'],
+ 'jagat+nāthaḥ':['jagannāthaḥ','final t assimilates to following n, producing nn']
+ };
+ if(rules[key]){[out,rule]=rules[key]}
+ $('#sandhiJoinOut').innerHTML=`<div class="code-flow"><span class="flow-node">${esc(a)}</span><span class="flow-arrow">+</span><span class="flow-node">${esc(b)}</span><span class="flow-arrow">→</span><span class="flow-node">${esc(out)}</span></div><p class="muted" style="margin-top:10px">${esc(rule)}</p>`;
+}
+function splitSandhi(){
+ const q=normalize($('#sandhiCombined').value.replace('’',"'"));
+ const rules={"rāmo 'sti":['rāmaḥ + asti'],'namaste':['namaḥ + te'],'sūryodayaḥ':['sūrya + udayaḥ'],'tac ca':['tat + ca'],'jagannāthaḥ':['jagat + nāthaḥ']};
+ const arr=rules[q]||[];
+ $('#sandhiSplitOut').innerHTML=arr.length?arr.map(x=>`<div class="result-item mono">${esc(x)}</div>`).join(''):`<div class="note warn">No seeded split. A production splitter would return multiple candidates ranked with morphological and corpus evidence.</div>`;
+}
+
+function renderNominals(){return `
+<h2>Nominal Engine</h2><p class="muted">Nouns, adjectives, pronouns, and numerals inflect for case and number; gender is lexical for nouns and agreement-based for adjectives.</p>
+<div class="card"><div class="grid-2">
+ <div><label class="mono-label">Paradigm</label><select class="select" id="nounModel" onchange="renderNounTable()">${Object.entries(NOUN_MODELS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}</select></div>
+ <div><label class="mono-label">Case interpretation</label><select class="select"><option>Core function, not one fixed English preposition</option><option>Syntax-first view</option></select></div>
+</div><div id="nounTable"></div></div>
+<div class="grid-3" style="margin-top:22px">
+ <div class="card"><div class="mono-label">Cases</div><p>Nominative, accusative, instrumental, dative, ablative, genitive, locative, vocative.</p></div>
+ <div class="card"><div class="mono-label">Numbers</div><p>Singular, dual, and plural. The dual is fully grammatical, not merely lexical.</p></div>
+ <div class="card"><div class="mono-label">Stem behavior</div><p>Consonant stems may alternate between strong, middle, and weak grades.</p></div>
+</div>`}
+function renderNounTable(){
+ const key=$('#nounModel')?.value||'deva',m=NOUN_MODELS[key],el=$('#nounTable');if(!el)return;
+ el.innerHTML=`<div class="table-wrapper"><table><tr><th>Case</th><th>Singular</th><th>Dual</th><th>Plural</th></tr>${m.rows.map(r=>`<tr><td>${r[0]}</td><td class="mono">${r[1]}</td><td class="mono">${r[2]}</td><td class="mono">${r[3]}</td></tr>`).join('')}</table></div>`;
+}
+
+function renderVerbs(){return `
+<h2>Verb Engine</h2><p class="muted">The ten present classes organize present-stem formation, not the entire verbal system. Sanskrit also distinguishes tense–mood systems, voice, pada, finite and non-finite forms, and derived conjugations.</p>
+<div class="card"><div class="grid-2">
+ <div><label class="mono-label">Root</label><select class="select" id="verbModel" onchange="renderVerbTable()">${Object.keys(VERB_MODELS).map(k=>`<option>${k}</option>`).join('')}</select></div>
+ <div><label class="mono-label">System</label><select class="select"><option>Present indicative active</option><option disabled>Imperfect — expansion target</option><option disabled>Optative — expansion target</option><option disabled>Imperative — expansion target</option><option disabled>Perfect — expansion target</option><option disabled>Aorist — expansion target</option></select></div>
+</div><div id="verbTable"></div></div>
+<div class="grid-3" style="margin-top:22px">
+ ${['Present participle','Past passive participle','Future participle / gerundive','Infinitive in -tum','Absolutive in -tvā / -ya','Causative, desiderative, intensive'].map(x=>`<div class="card"><div class="mono-label">Derived form</div><h3>${x}</h3></div>`).join('')}
+</div>`}
+function renderVerbTable(){
+ const key=$('#verbModel')?.value||'√bhū',m=VERB_MODELS[key],el=$('#verbTable');if(!el)return;
+ el.innerHTML=`<div class="table-wrapper"><table><tr><th>Person</th><th>Singular</th><th>Dual</th><th>Plural</th></tr>${m.present.map(r=>`<tr><td>${r[0]}</td><td class="mono">${r[1]}</td><td class="mono">${r[2]}</td><td class="mono">${r[3]}</td></tr>`).join('')}</table></div><h3>Build the form</h3><div class="code-flow">${m.flow.map((x,i)=>`${i?'<span class="flow-arrow">→</span>':''}<span class="flow-node">${esc(x)}</span>`).join('')}</div>`;
+}
+
+function renderSyntax(){return `
+<h2>Sentence Laboratory</h2><p class="muted">Click a token to inspect morphology, syntactic function, and translation.</p>
+<div class="card">
+ <label class="mono-label">Example</label><select class="select" id="sentenceSelect" onchange="renderSentence(this.value)">${SENTENCES.map((s,i)=>`<option value="${i}">${s.iast}</option>`).join('')}</select>
+ <div id="sentenceDisplay" style="margin-top:22px"></div>
+</div>
+<div class="grid-3" style="margin-top:22px">
+ <div class="card"><h3>Agreement</h3><p>Nouns and adjectives agree where required in gender, number, and case.</p></div>
+ <div class="card"><h3>Word order</h3><p>Inflection allows flexibility, but prose commonly favors topic–comment and subject–object–verb tendencies.</p></div>
+ <div class="card"><h3>Participial syntax</h3><p>Participles frequently carry information that English expresses with finite subordinate clauses.</p></div>
+</div>`}
+function renderSentence(i){
+ const s=SENTENCES[Number(i)||0],el=$('#sentenceDisplay');if(!el)return;
+ el.innerHTML=`<div class="devanagari sanskrit-big">${esc(s.deva)}</div><div class="mono" style="font-size:19px">${esc(s.iast)}</div><p class="muted">${esc(s.translation)}</p><div class="token-row">${s.tokens.map((t,j)=>`<button class="token" onclick="showToken(${Number(i)||0},${j},this)">${esc(t[0])}</button>`).join('')}</div><div id="tokenDetail" class="note">Select a token.</div>`;
+}
+function showToken(si,ti,el){
+ $$('.token').forEach(x=>x.classList.remove('active'));el.classList.add('active');const t=SENTENCES[si].tokens[ti];
+ $('#tokenDetail').innerHTML=`<strong class="mono">${esc(t[0])}</strong><br>Lemma: <strong>${esc(t[1])}</strong><br>${esc(t[2])} · ${esc(t[3])}<br>Syntactic role: ${esc(t[4])}<br>Contextual translation: “${esc(t[5])}”`;
+}
+
+function renderCompounds(){return `
+<h2>Compounds</h2><p class="muted">A compound analysis should identify the internal relation, head, expanded paraphrase (vigraha), literal sense, and contextual sense.</p>
+<div class="grid">
+ ${[
+ ['Tatpuruṣa','deva-giri','देवगिरि','“mountain of the gods”; dependent first member'],
+ ['Karmadhāraya','nīlotpala','नीलोत्पल','“blue lotus”; descriptive relation'],
+ ['Dvandva','sūrya-candramasau','सूर्यचन्द्रमसौ','“sun and moon”; coordinate members'],
+ ['Bahuvrīhi','pītāmbara','पीताम्बर','“one whose garment is yellow”; external referent'],
+ ['Avyayībhāva','yathāśakti','यथाशक्ति','“according to ability”; indeclinable compound'],
+ ['Dvigu','triloka','त्रिलोक','“the three worlds”; numeral-led formation']
+ ].map(x=>`<div class="card hover"><div class="eyebrow">${x[0]}</div><h3 class="mono">${x[1]}</h3><div class="devanagari" style="font-size:28px">${x[2]}</div><p class="muted">${x[3]}</p></div>`).join('')}
+</div>`}
+
+function renderVedic(){return `
+<h2>Vedic Sanskrit</h2>
+<div class="card note warn"><strong>Mode separation matters.</strong> Vedic Sanskrit preserves categories and usages that are absent, reduced, or reanalyzed in Classical Sanskrit.</div>
+<div class="grid" style="margin-top:22px">
+ ${[
+ ['Accent','Pitch accent and accent marks must be preserved in editions that represent them.'],
+ ['Verb system','Subjunctive, injunctive, older infinitives, and archaic formations require separate treatment.'],
+ ['Phonology','Older sound patterns and recitational traditions affect interpretation.'],
+ ['Lexicon','Vedic meanings cannot be inferred safely from later Classical usage alone.'],
+ ['Syntax','Case use, particles, and clause structure show archaic patterns.'],
+ ['Sources','Entries should cite text, hymn, verse, recension, and editorial convention.']
+ ].map(x=>`<div class="card"><h3>${x[0]}</h3><p class="muted">${x[1]}</p></div>`).join('')}
+</div>`}
+
+function renderMeter(){return `
+<h2>Meter & Texts</h2>
+<div class="grid-2">
+ <div class="card"><div class="eyebrow">Scansion</div><h3>Laghu and guru</h3><p>A syllable is light or heavy according to vowel quantity and syllable closure. Sandhi and recitation can affect the metrical surface.</p><div class="code-flow"><span class="flow-node">la-ghu</span><span class="flow-node">– ⏑</span><span class="flow-node">gu-ru</span><span class="flow-node">– –</span></div></div>
+ <div class="card"><div class="eyebrow">Common meters</div><h3>Starter set</h3><p>Anuṣṭubh / śloka, triṣṭubh, jagatī, gāyatrī, and classical quantitative meters should each have dedicated pattern visualizations.</p></div>
+</div>
+<div class="card" style="margin-top:22px"><h3>Text workspace roadmap</h3><p>Paste a verse, segment it, mark syllable weight, identify candidate meters, show sandhi, and link each word to dictionary and morphology entries.</p></div>`}
+
+function renderTyping(){return `
+<h2>Typing & Transliteration</h2>
+<div class="grid-2">
+ <div class="card"><h3>IAST</h3><p>Use Unicode characters rather than ASCII approximations for scholarly work. The floating palette provides the full core set used in this prototype.</p><div class="mono">ā ī ū ṛ ṝ ḷ ḹ ṅ ñ ṭ ḍ ṇ ś ṣ ṃ ḥ</div></div>
+ <div class="card"><h3>Devanagari</h3><p>Use a Unicode Devanagari keyboard. The application uses Noto Serif Devanagari for legibility and conjunct support.</p><div class="devanagari sanskrit-big">संस्कृतम्</div></div>
+ <div class="card"><h3>Normalization</h3><p>Production search should normalize Unicode composition, avagraha variants, punctuation, and common transliteration schemes such as Harvard-Kyoto, ITRANS, and SLP1.</p></div>
+ <div class="card"><h3>Round-trip conversion</h3><p>A reliable converter must understand inherent vowels, virāma, consonant conjuncts, independent vowels, dependent vowel signs, and Vedic marks.</p></div>
+</div>`}
+
+function renderStudy(){return `
+<h2>Study Mode</h2>
+<div class="grid-2">
+ <div class="card">
+  <div class="eyebrow"><span class="dot" style="background:var(--green)"></span>Quick quiz</div>
+  <div id="quizBox"></div>
+ </div>
+ <div class="card">
+  <h3>Learning tracks</h3>
+  ${[['Sound distinctions',78],['Devanagari reading',62],['Nominal paradigms',44],['Verb systems',31],['Sandhi',25]].map(x=>`<div style="margin:14px 0"><div style="display:flex;justify-content:space-between"><span>${x[0]}</span><span class="mono">${x[1]}%</span></div><div class="progress"><span style="width:${x[1]}%"></span></div></div>`).join('')}
+ </div>
+</div>
+<div class="grid-3" style="margin-top:22px">${['Spaced repetition','Declension drills','Conjugation drills','Sandhi exercises','Saved words','Reading notebook'].map(x=>`<div class="card"><h3>${x}</h3><p class="muted">Expansion-ready module.</p></div>`).join('')}</div>`}
+let currentQuiz=null;
+function newQuiz(){
+ const pool=LEXICON.filter(x=>x.english?.length);currentQuiz=pool[Math.floor(Math.random()*pool.length)];
+ const distract=pool.filter(x=>x!==currentQuiz).sort(()=>Math.random()-.5).slice(0,3);
+ const opts=[currentQuiz,...distract].sort(()=>Math.random()-.5);
+ $('#quizBox').innerHTML=`<h3>What is the best core meaning of <span class="mono">${esc(currentQuiz.lemma)}</span> <span class="devanagari">${esc(currentQuiz.deva)}</span>?</h3><div class="result-list">${opts.map(o=>`<button class="ghost-btn" onclick="answerQuiz('${o.lemma.replace("'","\\'")}')">${esc(o.english[0])}</button>`).join('')}</div><div id="quizFeedback" style="margin-top:12px"></div>`;
+}
+function answerQuiz(l){const ok=l===currentQuiz.lemma;$('#quizFeedback').innerHTML=`<div class="note ${ok?'success':'warn'}">${ok?'Correct.':'Not quite.'} ${esc(currentQuiz.lemma)}: ${esc(currentQuiz.meanings[0])}</div><button class="primary-btn" style="margin-top:10px" onclick="newQuiz()">Next</button>`}
+
+function renderSources(){return `
+<h2>Sources & Editorial Method</h2>
+<div class="grid-2">
+ <div class="card"><h3>Lexicographic layers</h3><ul><li>Monier-Williams</li><li>Apte</li><li>Macdonell</li><li>Böhtlingk–Roth</li><li>Vācaspatyam</li><li>Śabdakalpadruma</li><li>Specialized Vedic and Buddhist Sanskrit sources</li></ul></div>
+ <div class="card"><h3>Grammar layers</h3><ul><li>Pāṇinian analysis</li><li>Modern descriptive grammar</li><li>Pedagogical paradigms</li><li>Corpus attestations</li><li>Computational morphology and segmentation</li></ul></div>
+</div>
+<div class="card note" style="margin-top:22px"><strong>Provenance rule.</strong> A production dictionary should retain source-specific senses rather than silently merging them. Every generated translation should display confidence, period, register, construction, and attestation status.</div>
+<div class="card" style="margin-top:22px"><h3>Prototype limitations</h3><p>This file is fully functional as an interface and teaching prototype, but its embedded lexicon is intentionally small. It does not include a complete morphological generator, corpus, Vedic accent engine, or licensed dictionary database. Those should be added as structured data layers or APIs rather than approximated.</p></div>`}
+
+window.addEventListener('DOMContentLoaded',boot);
+</script>
+</body>
+</html>
